@@ -14,13 +14,3 @@ type Med = {
   name: string;
   dose: string;
 };
-
-type Conversation = {
-  role: "user" | "assistant";
-  content: string;
-};
-
-type VapiMessage = {
-  transcript?: string;
-  conversation?: Conversation[]; // or define the shape more precisely
-};

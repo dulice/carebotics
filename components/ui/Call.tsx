@@ -18,13 +18,14 @@ enum CallStatus {
   ACTIVE = "ACITVE",
   INACTIVE = "INACTIVE",
   DISCONNECT = "DISCONNECT",
+  ERROR = "ERROR",
 }
 
 const Call = ({ userId }: { userId: string }) => {
   const router = useRouter();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setcallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
-  const [conversation, setConversation] = useState([]);
+  const [conversation, setConversation] = useState<Conversation[]>([]);
   const [lastMessage, setLastMessage] = useState("");
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const Call = ({ userId }: { userId: string }) => {
     };
 
     const onCallEnd = () => {
-      setcallStatus(CallStatus.DISCONNECT);
+      console.log("call ended");
     };
 
     const onSpeechStart = () => {
@@ -44,13 +45,14 @@ const Call = ({ userId }: { userId: string }) => {
       setIsSpeaking(false);
     };
 
-    const onError = (e: unknown) => {
-      toast.error(`Error: ${e}`);
+    const onError = (e: VapiError) => {
+      setcallStatus(CallStatus.ERROR);
+      console.log(e);
+      toast.error(`Error: ${e.errorMsg}`);
     };
 
-    const onMessage = (message: any) => {
+    const onMessage = (message: VapiMessage) => {
       console.log(message);
-      console.log(message?.conversation);
       setLastMessage(message.transcript ?? "");
       setConversation(message.conversation ?? []);
     };
@@ -108,6 +110,7 @@ const Call = ({ userId }: { userId: string }) => {
   const disconnectCall = async () => {
     vapi.stop();
     toast("Meeting has ended");
+    setcallStatus(CallStatus.DISCONNECT);
     const { data } = await axios.post("/api/ai-feedback", {
       conversation,
       userId,
@@ -126,7 +129,11 @@ const Call = ({ userId }: { userId: string }) => {
   };
 
   const mute = () => {
-    vapi.isMuted() ? vapi.setMuted(false) : vapi.setMuted(true);
+    if (vapi.isMuted()) {
+      vapi.setMuted(false);
+    } else {
+      vapi.setMuted(true);
+    }
   };
 
   if (callStatus == CallStatus.INACTIVE) {
