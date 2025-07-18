@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { Provider } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 type Props = {
@@ -40,12 +39,12 @@ export async function logout() {
 }
 
 export async function oauth(provider: Provider) {
-  const origin = (await headers()).get("origin");
+  const url = process.env.NEXT_PUBLIC_CLIENT_URL;
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${origin}/api/auth/callback`,
+      redirectTo: `${url}/auth/callback`,
     },
   });
   if (error) {
@@ -53,7 +52,7 @@ export async function oauth(provider: Provider) {
   }
 
   if (data.url) {
-    console.log(data);
+    // console.log(data);
     return redirect(data.url);
   }
 }
