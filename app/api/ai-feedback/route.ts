@@ -18,7 +18,7 @@ export async function POST(req: Request) {
                 conversation: ${conversation}
 
                 task:
-                Generate with the following well structure json format.
+                Generate with the following well structure json format. Do not generate any other text than this.
                 {
                 complaint: "",
                 summary: "",

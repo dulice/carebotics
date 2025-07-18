@@ -54,7 +54,9 @@ const Call = ({ userId }: { userId: string }) => {
     const onMessage = (message: VapiMessage) => {
       console.log(message);
       setLastMessage(message.transcript ?? "");
-      message.conversation && setConversation(message.conversation);
+      if (message.conversation) {
+        setConversation(message.conversation);
+      }
     };
 
     startCall();
